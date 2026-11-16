@@ -4,6 +4,10 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.numbers.*;
+import edu.wpi.first.math.system.LinearSystem;
+import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.util.Units;
 
 public class Constants {
@@ -66,25 +70,27 @@ public class Constants {
         }
     }
 
-    public static class SwerveModulePIDValues {
-        public final double turnP, turnI, turnD, driveP, driveI, driveD;
+    public static class MotorPreset {
+        public final DCMotor motor;
+        public final double momentInertia;
 
-        public SwerveModulePIDValues(
-                double turnP,
-                double turnI,
-                double turnD,
-                double driveP,
-                double driveI,
-                double driveD) {
-            this.turnP = turnP;
-            this.turnI = turnI;
-            this.turnD = turnD;
+        public MotorPreset(DCMotor motor, double momentInertia) {
+            this.motor = motor;
+            this.momentInertia = momentInertia;
+        }
 
-            this.driveP = driveP;
-            this.driveI = driveI;
-            this.driveD = driveD;
+        public LinearSystem<N2, N1, N2> getLinearSystem(double gearing) {
+            return LinearSystemId.createDCMotorSystem(motor, momentInertia, gearing);
         }
     }
+
+    public static record SwerveModulePIDValues(
+            double turnP,
+            double turnI,
+            double turnD,
+            double driveP,
+            double driveI,
+            double driveD) {}
 
     public static final class SwerveModuleConstants {
         // units: m
@@ -98,10 +104,16 @@ public class Constants {
         };
         public static final double kTurnGearRatio = 287 / 11;
 
-        public static final SwerveModulePIDValues kSparkMaxPID =
-                new SwerveModulePIDValues(1, 0, 0, 1, 0, 0);
         public static final SwerveModulePIDValues kTalonFxPID =
                 new SwerveModulePIDValues(1, 0, 0, 1, 0, 0);
+		public static final SwerveModulePIDValues kSimPID =
+                new SwerveModulePIDValues(1, 0, 0, 1, 0, 0);
+
+        public static final MotorPreset kPresetNEO = new MotorPreset(DCMotor.getNEO(1), 0.005);
+        public static final MotorPreset kPresetKrakenX60 =
+                new MotorPreset(DCMotor.getKrakenX60(1), 0.005);
+        public static final MotorPreset kPresetKrakenX44 =
+                new MotorPreset(DCMotor.getKrakenX44(1), 0.005);
     }
 
     public static class DriveConstants {
@@ -155,8 +167,8 @@ public class Constants {
 
         // units: kg
         public static final double kRobotMass = 50;
-        // units: kg/m/m
-        public static final double kRobotMOI = 7.0;
+        // units: kg m^2
+        public static final double kRobotMOI = 1.29;
 
         public static final SwerveModuleState[] kLockStates =
                 new SwerveModuleState[] {

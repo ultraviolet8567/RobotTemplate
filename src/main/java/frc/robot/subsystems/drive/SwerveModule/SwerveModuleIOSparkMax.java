@@ -1,7 +1,9 @@
 package frc.robot.subsystems.drive.SwerveModule;
 
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.MathUtil;
@@ -19,7 +21,7 @@ public class SwerveModuleIOSparkMax implements SwerveModuleIO {
     private final SparkMax driveMotor, turnMotor;
     private final SparkMaxConfig driveConfig, turnConfig;
     private final AnalogInput absoluteEncoder;
-    private final PIDController drivePID, turnPID;
+    private final SparkClosedLoopController driveControl, turnControl;
     private final double encoderOffset;
 
     public SwerveModuleIOSparkMax(SwerveModulePreset preset) {
@@ -48,26 +50,18 @@ public class SwerveModuleIOSparkMax implements SwerveModuleIO {
         absoluteEncoder = new AnalogInput(preset.encoderPort);
         encoderOffset = preset.encoderOffset;
 
-        turnPID =
-                new PIDController(
-                        SwerveModuleConstants.kSparkMaxPID.turnP,
-                        SwerveModuleConstants.kSparkMaxPID.turnI,
-                        SwerveModuleConstants.kSparkMaxPID.turnD);
-        drivePID =
-                new PIDController(
-                        SwerveModuleConstants.kSparkMaxPID.driveP,
-                        SwerveModuleConstants.kSparkMaxPID.driveI,
-                        SwerveModuleConstants.kSparkMaxPID.driveD);
+        driveControl = driveMotor.getClosedLoopController();
+		turnControl = turnMotor.getClosedLoopController();
     }
 
     public void setVelocity(double velocity) {
-        driveMotor.setVoltage(drivePID.calculate(getVelocity(), velocity));
+        driveControl.setSetpoint(velocity,ControlType.kVelocity);
     }
 
     public void setRotation(Rotation2d rotation) {
         SwerveModuleState state = new SwerveModuleState(getState().speedMetersPerSecond, rotation);
         state.optimize(getState().angle);
-        turnMotor.setVoltage(turnPID.calculate(getRotation().getRadians(), rotation.getRadians()));
+        turnControl.setSetpoint(rotation.getRadians(), ControlType.kPosition);
     }
 
     public void stop() {
