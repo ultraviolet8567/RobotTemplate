@@ -9,6 +9,7 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.SwerveModuleConstants;
 import frc.robot.subsystems.drive.SwerveModule.SwerveModule;
 import frc.robot.subsystems.drive.SwerveModule.SwerveModuleIO;
+import org.littletonrobotics.junction.Logger;
 
 public class Swerve extends SubsystemBase {
     private final SwerveModule moduleFL, moduleBL, moduleFR, moduleBR;
@@ -26,18 +27,32 @@ public class Swerve extends SubsystemBase {
         this.moduleBR = new SwerveModule(moduleBR);
     }
 
+    @Override
+    public void periodic() {
+        Logger.recordOutput(getName() + "/CurrentState", getStates());
+    }
+
     public void setStates(SwerveModuleState[] moduleStates) {
         SwerveDriveKinematics.desaturateWheelSpeeds(moduleStates, SwerveModuleConstants.kMaxSpeed);
         moduleFL.setState(moduleStates[0]);
         moduleFR.setState(moduleStates[1]);
         moduleBL.setState(moduleStates[2]);
         moduleBR.setState(moduleStates[3]);
+
+        Logger.recordOutput(getName() + "/TargetState", moduleStates);
     }
 
     public void setStates(ChassisSpeeds chassisSpeed) {
         SwerveModuleState[] moduleStates =
                 DriveConstants.kDriveKinematics.toSwerveModuleStates(chassisSpeed);
         setStates(moduleStates);
+    }
+
+    public void resetEncoders() {
+        moduleFL.resetEncoder();
+        moduleFR.resetEncoder();
+        moduleBL.resetEncoder();
+        moduleBR.resetEncoder();
     }
 
     public void stop() {
@@ -58,7 +73,7 @@ public class Swerve extends SubsystemBase {
 
     public SwerveModuleState[] getStates() {
         return new SwerveModuleState[] {
-            moduleFL.getState(), moduleBL.getState(), moduleFL.getState(), moduleFL.getState()
+            moduleFL.getState(), moduleFR.getState(), moduleBL.getState(), moduleBR.getState()
         };
     }
 

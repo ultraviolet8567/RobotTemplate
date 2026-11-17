@@ -28,9 +28,9 @@ public class ManualTeleOp extends Command {
         this.odometry = odometry;
         this.controller = controller;
 
-        this.xControl = () -> controller.getLeftX();
-        this.yControl = () -> controller.getLeftY();
-        this.turnControl = () -> controller.getRightX();
+        this.xControl = () -> -this.controller.getLeftY();
+        this.yControl = () -> -this.controller.getLeftX();
+        this.turnControl = () -> -this.controller.getRightX();
         this.driveSpeed = driveSpeed;
         this.turnSpeed = turnSpeed;
 

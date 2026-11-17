@@ -1,13 +1,16 @@
 package frc.robot.subsystems.drive.SwerveModule;
 
-import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.SparkClosedLoopController;
-import com.revrobotics.spark.SparkMax;
+import com.revrobotics.PersistMode;
+import com.revrobotics.RelativeEncoder;
+import com.revrobotics.ResetMode;
+import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkBase.ControlType;
+import com.revrobotics.spark.SparkClosedLoopController;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -21,6 +24,7 @@ public class SwerveModuleIOSparkMax implements SwerveModuleIO {
     private final SparkMax driveMotor, turnMotor;
     private final SparkMaxConfig driveConfig, turnConfig;
     private final AnalogInput absoluteEncoder;
+    private final RelativeEncoder driveEncoder, turnEncoder;
     private final SparkClosedLoopController driveControl, turnControl;
     private final double encoderOffset;
 
@@ -35,7 +39,11 @@ public class SwerveModuleIOSparkMax implements SwerveModuleIO {
         driveConfig.smartCurrentLimit(40);
         driveConfig.inverted(preset.driveInverted);
         driveConfig.idleMode(IdleMode.kBrake);
+        driveConfig.closedLoop.pid(0.05, 0, 1);
+        driveConfig.closedLoop.feedForward.kV(0.2);
+        driveConfig.closedLoopRampRate(0.05);
 
+        driveEncoder = driveMotor.getEncoder();
         driveConfig.encoder.positionConversionFactor(preset.driveRot2Meters());
         driveConfig.encoder.velocityConversionFactor(preset.driveRPM2MetersPerSec());
 
@@ -43,25 +51,47 @@ public class SwerveModuleIOSparkMax implements SwerveModuleIO {
         turnConfig.smartCurrentLimit(40);
         turnConfig.inverted(preset.turnInverted);
         turnConfig.idleMode(IdleMode.kBrake);
+        turnConfig.closedLoop.pid(1, 0, 0);
+        turnConfig.closedLoop.positionWrappingEnabled(true);
+        turnConfig.closedLoop.positionWrappingInputRange(0, Math.PI * 2);
+        turnConfig.closedLoop.allowedClosedLoopError(
+                SwerveModuleConstants.kAllowedError, ClosedLoopSlot.kSlot0);
+        turnConfig.closedLoopRampRate(0.05);
 
+        turnEncoder = turnMotor.getEncoder();
         turnConfig.encoder.positionConversionFactor(preset.turnRot2Rads());
         turnConfig.encoder.velocityConversionFactor(preset.turnRPM2RadsPerSec());
 
         absoluteEncoder = new AnalogInput(preset.encoderPort);
         encoderOffset = preset.encoderOffset;
 
+        driveMotor.configure(
+                driveConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        turnMotor.configure(
+                turnConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+        turnEncoder.setPosition(getAbsoluteRotation().getRadians());
+
         driveControl = driveMotor.getClosedLoopController();
-		turnControl = turnMotor.getClosedLoopController();
+        turnControl = turnMotor.getClosedLoopController();
     }
 
     public void setVelocity(double velocity) {
-        driveControl.setSetpoint(velocity,ControlType.kVelocity);
+        driveControl.setSetpoint(velocity, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
     }
 
     public void setRotation(Rotation2d rotation) {
-        SwerveModuleState state = new SwerveModuleState(getState().speedMetersPerSecond, rotation);
-        state.optimize(getState().angle);
         turnControl.setSetpoint(rotation.getRadians(), ControlType.kPosition);
+    }
+
+    public void setState(SwerveModuleState state) {
+        state.optimize(getRotation());
+        setVelocity(state.speedMetersPerSecond);
+        setRotation(state.angle);
+    }
+
+    public void resetEncoder() {
+        turnEncoder.setPosition(getAbsoluteRotation().getRadians());
     }
 
     public void stop() {
@@ -73,7 +103,7 @@ public class SwerveModuleIOSparkMax implements SwerveModuleIO {
         return driveMotor.getEncoder().getVelocity();
     }
 
-    public Rotation2d getRotation() {
+    public Rotation2d getAbsoluteRotation() {
         double angle = absoluteEncoder.getAverageVoltage() / RobotController.getVoltage5V();
         angle = Units.rotationsToRadians(angle);
         angle += encoderOffset;
@@ -81,11 +111,15 @@ public class SwerveModuleIOSparkMax implements SwerveModuleIO {
         return new Rotation2d(angle);
     }
 
+    public Rotation2d getRotation() {
+        return new Rotation2d(turnEncoder.getPosition());
+    }
+
     public SwerveModuleState getState() {
         return new SwerveModuleState(getVelocity(), getRotation());
     }
 
     public SwerveModulePosition getPosition() {
-        return new SwerveModulePosition(driveMotor.getEncoder().getPosition(), getRotation());
+        return new SwerveModulePosition(driveEncoder.getPosition(), getRotation());
     }
 }

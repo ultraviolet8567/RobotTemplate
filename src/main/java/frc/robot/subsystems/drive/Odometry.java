@@ -30,7 +30,7 @@ public class Odometry extends SubsystemBase {
 
     @Override
     public void periodic() {
-        Logger.recordOutput(getName() + "/Pose", getPose());
+        Logger.recordOutput(getName() + "/Pose", getHeading());
         poseEstimator.update(getHeading(), swerve.getPositions());
     }
 

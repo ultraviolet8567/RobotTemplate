@@ -3,8 +3,9 @@ package frc.robot.subsystems.drive.SwerveModule;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class SwerveModule {
+public class SwerveModule extends SubsystemBase {
     private final SwerveModuleIO io;
 
     public SwerveModule(SwerveModuleIO io) {
@@ -19,9 +20,16 @@ public class SwerveModule {
         io.setVelocity(velocity);
     }
 
+    public void resetEncoder() {
+        io.resetEncoder();
+    }
+
+    public void stop() {
+        io.stop();
+    }
+
     public void setState(SwerveModuleState state) {
-        io.setVelocity(state.speedMetersPerSecond);
-        io.setRotation(state.angle);
+        io.setState(state);
     }
 
     public double getVelocity() {
@@ -32,15 +40,15 @@ public class SwerveModule {
         return getState().angle;
     }
 
+    public Rotation2d getAbsoluteRotation() {
+        return io.getAbsoluteRotation();
+    }
+
     public SwerveModuleState getState() {
         return io.getState();
     }
 
     public SwerveModulePosition getPosition() {
         return io.getPosition();
-    }
-
-    public void stop() {
-        io.stop();
     }
 }

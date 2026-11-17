@@ -98,15 +98,30 @@ public class Constants {
         // units: m/s
         public static final double kMaxSpeed = 12;
 
-        public static final double[] kDriveGearRatios = {
+        // units: rad
+        public static final double kAllowedError = 0.1;
+
+        public static final double[] kMK5NDriveGearRatios = {
             1, // Filler
-            225 / 32, 675 / 112, 675 / 128
+            225.0 / 32.0,
+            675.0 / 112.0,
+            675.0 / 128.0
         };
-        public static final double kTurnGearRatio = 287 / 11;
+
+        public static final double[] kMK4NDriveGearRatios = {
+            1, // Filler
+            1 / 5.9
+        };
+
+        public static final double kMK5NTurnGearRatio = 287.0 / 11.0;
+        public static final double kMK4NTurnGearRatio = 4.0 / 75.0;
+
+        public static final double[] kDriveGearRatios = kMK4NDriveGearRatios;
+        public static final double kTurnGearRatio = kMK4NTurnGearRatio;
 
         public static final SwerveModulePIDValues kTalonFxPID =
                 new SwerveModulePIDValues(1, 0, 0, 1, 0, 0);
-		public static final SwerveModulePIDValues kSimPID =
+        public static final SwerveModulePIDValues kSimPID =
                 new SwerveModulePIDValues(1, 0, 0, 1, 0, 0);
 
         public static final MotorPreset kPresetNEO = new MotorPreset(DCMotor.getNEO(1), 0.005);
@@ -142,16 +157,21 @@ public class Constants {
 
         public static final SwerveModulePreset kModuleFL =
                 new SwerveModulePreset(
-                        CAN.kDriveMotorPortFL, CAN.kTurnMotorPortFL, false, false, 0, 0);
+                        CAN.kDriveMotorPortFL, CAN.kTurnMotorPortFL, true, true, 0, 0.714 - 1.325);
         public static final SwerveModulePreset kModuleFR =
                 new SwerveModulePreset(
-                        CAN.kDriveMotorPortFR, CAN.kTurnMotorPortFR, false, false, 1, 0);
+                        CAN.kDriveMotorPortFR, CAN.kTurnMotorPortFR, true, true, 1, -1.745 - 0.009);
         public static final SwerveModulePreset kModuleBL =
                 new SwerveModulePreset(
-                        CAN.kDriveMotorPortBL, CAN.kTurnMotorPortBL, false, false, 2, 0);
+                        CAN.kDriveMotorPortBL,
+                        CAN.kTurnMotorPortBL,
+                        false,
+                        true,
+                        2,
+                        -0.106 + 0.014);
         public static final SwerveModulePreset kModuleBR =
                 new SwerveModulePreset(
-                        CAN.kDriveMotorPortBR, CAN.kTurnMotorPortBR, false, false, 3, 0);
+                        CAN.kDriveMotorPortBR, CAN.kTurnMotorPortBR, true, true, 3, 0.048 + 0.412);
 
         /*
         // units: m/s

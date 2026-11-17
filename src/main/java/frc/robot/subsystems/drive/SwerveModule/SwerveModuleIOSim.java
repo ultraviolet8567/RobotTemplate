@@ -11,12 +11,10 @@ import frc.robot.Constants.SwerveModulePreset;
 
 public class SwerveModuleIOSim implements SwerveModuleIO {
     private final DCMotorSim driveMotor, turnMotor;
-	private final PIDController driveControl, turnControl;
+    private final PIDController driveControl, turnControl;
 
     public SwerveModuleIOSim(
-            SwerveModulePreset preset, 
-			MotorPreset driveMotor, 
-			MotorPreset turnMotor) {
+            SwerveModulePreset preset, MotorPreset driveMotor, MotorPreset turnMotor) {
 
         this.driveMotor =
                 new DCMotorSim(driveMotor.getLinearSystem(preset.driveRatio), driveMotor.motor);
@@ -24,8 +22,8 @@ public class SwerveModuleIOSim implements SwerveModuleIO {
                 new DCMotorSim(
                         turnMotor.getLinearSystem(SwerveModuleConstants.kTurnGearRatio),
                         turnMotor.motor);
-		
-		turnControl =
+
+        turnControl =
                 new PIDController(
                         SwerveModuleConstants.kSimPID.turnP(),
                         SwerveModuleConstants.kSimPID.turnI(),
@@ -37,7 +35,7 @@ public class SwerveModuleIOSim implements SwerveModuleIO {
                         SwerveModuleConstants.kSimPID.driveD());
     }
 
-	public void setVelocity(double velocity) {}
+    public void setVelocity(double velocity) {}
 
     public void setRotation(Rotation2d rotation) {}
 
