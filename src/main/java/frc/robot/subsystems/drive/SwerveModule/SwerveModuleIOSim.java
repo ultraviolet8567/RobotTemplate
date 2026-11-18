@@ -1,6 +1,5 @@
 package frc.robot.subsystems.drive.SwerveModule;
 
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -11,7 +10,6 @@ import frc.robot.Constants.SwerveModulePreset;
 
 public class SwerveModuleIOSim implements SwerveModuleIO {
     private final DCMotorSim driveMotor, turnMotor;
-    private final PIDController driveControl, turnControl;
 
     public SwerveModuleIOSim(
             SwerveModulePreset preset, MotorPreset driveMotor, MotorPreset turnMotor) {
@@ -22,17 +20,6 @@ public class SwerveModuleIOSim implements SwerveModuleIO {
                 new DCMotorSim(
                         turnMotor.getLinearSystem(SwerveModuleConstants.kTurnGearRatio),
                         turnMotor.motor);
-
-        turnControl =
-                new PIDController(
-                        SwerveModuleConstants.kSimPID.turnP(),
-                        SwerveModuleConstants.kSimPID.turnI(),
-                        SwerveModuleConstants.kSimPID.turnD());
-        driveControl =
-                new PIDController(
-                        SwerveModuleConstants.kSimPID.driveP(),
-                        SwerveModuleConstants.kSimPID.driveI(),
-                        SwerveModuleConstants.kSimPID.driveD());
     }
 
     public void setVelocity(double velocity) {}
@@ -50,7 +37,7 @@ public class SwerveModuleIOSim implements SwerveModuleIO {
     }
 
     public SwerveModuleState getState() {
-        return null;
+        return new SwerveModuleState(getVelocity(), getRotation());
     }
 
     public SwerveModulePosition getPosition() {

@@ -56,7 +56,7 @@ public class Constants {
 
         // units: rot -> rad
         public double turnRot2Rads() {
-            return SwerveModuleConstants.kTurnGearRatio * Math.PI * 2;
+            return Units.rotationsToRadians(SwerveModuleConstants.kTurnGearRatio);
         }
 
         // units: rot/min -> m/s
@@ -66,7 +66,7 @@ public class Constants {
 
         // units: rot/min -> rad/s
         public double turnRPM2RadsPerSec() {
-            return turnRot2Rads() * Math.PI * 2;
+            return turnRot2Rads() / 60;
         }
     }
 
@@ -84,13 +84,14 @@ public class Constants {
         }
     }
 
-    public static record SwerveModulePIDValues(
+    public static record SwerveModuleGains(
             double turnP,
             double turnI,
             double turnD,
             double driveP,
             double driveI,
-            double driveD) {}
+            double driveD,
+            double driveV) {}
 
     public static final class SwerveModuleConstants {
         // units: m
@@ -98,8 +99,10 @@ public class Constants {
         // units: m/s
         public static final double kMaxSpeed = 12;
 
+        // units m/s
+        public static final double kAllowedDriveError = 0.01;
         // units: rad
-        public static final double kAllowedError = 0.1;
+        public static final double kAllowedTurnError = 0.1;
 
         public static final double[] kMK5NDriveGearRatios = {
             1, // Filler
@@ -119,16 +122,16 @@ public class Constants {
         public static final double[] kDriveGearRatios = kMK4NDriveGearRatios;
         public static final double kTurnGearRatio = kMK4NTurnGearRatio;
 
-        public static final SwerveModulePIDValues kTalonFxPID =
-                new SwerveModulePIDValues(1, 0, 0, 1, 0, 0);
-        public static final SwerveModulePIDValues kSimPID =
-                new SwerveModulePIDValues(1, 0, 0, 1, 0, 0);
-
         public static final MotorPreset kPresetNEO = new MotorPreset(DCMotor.getNEO(1), 0.005);
         public static final MotorPreset kPresetKrakenX60 =
                 new MotorPreset(DCMotor.getKrakenX60(1), 0.005);
         public static final MotorPreset kPresetKrakenX44 =
                 new MotorPreset(DCMotor.getKrakenX44(1), 0.005);
+
+        public static final SwerveModuleGains kSparkMaxGains =
+                new SwerveModuleGains(0.05, 0, 1, 1, 0, 0, 0.2);
+        public static final SwerveModuleGains kTalonFXGains =
+                new SwerveModuleGains(1, 0, 0, 1, 0, 0, 0.2);
     }
 
     public static class DriveConstants {
