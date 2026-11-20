@@ -27,17 +27,22 @@ public class Constants {
     }
 
     public static class SwerveModulePreset {
+        public final String name;
         public final int drivePort, turnPort, encoderPort;
         public final double driveRatio, encoderOffset;
         public final boolean driveInverted, turnInverted;
 
         public SwerveModulePreset(
+                String name,
                 int drivePort,
                 int turnPort,
                 boolean driveInverted,
                 boolean turnInverted,
                 int encoderPort,
                 double encoderOffset) {
+
+            this.name = name;
+
             this.drivePort = drivePort;
             this.turnPort = turnPort;
 
@@ -129,9 +134,9 @@ public class Constants {
                 new MotorPreset(DCMotor.getKrakenX44(1), 0.005);
 
         public static final SwerveModuleGains kSparkMaxGains =
-                new SwerveModuleGains(0.05, 0, 1, 1, 0, 0, 0.2);
+                new SwerveModuleGains(1, 0, 1, 0.05, 0, 1, 0.2);
         public static final SwerveModuleGains kTalonFXGains =
-                new SwerveModuleGains(1, 0, 0, 1, 0, 0, 0.2);
+                new SwerveModuleGains(1, 0, 1, 0.05, 0, 0, 0.2);
     }
 
     public static class DriveConstants {
@@ -160,12 +165,25 @@ public class Constants {
 
         public static final SwerveModulePreset kModuleFL =
                 new SwerveModulePreset(
-                        CAN.kDriveMotorPortFL, CAN.kTurnMotorPortFL, true, true, 0, 0.714 - 1.325);
+                        "SwerveModuleFL",
+                        CAN.kDriveMotorPortFL,
+                        CAN.kTurnMotorPortFL,
+                        true,
+                        true,
+                        0,
+                        0.714 - 1.325);
         public static final SwerveModulePreset kModuleFR =
                 new SwerveModulePreset(
-                        CAN.kDriveMotorPortFR, CAN.kTurnMotorPortFR, true, true, 1, -1.745 - 0.009);
+                        "SwerveModuleFR",
+                        CAN.kDriveMotorPortFR,
+                        CAN.kTurnMotorPortFR,
+                        true,
+                        true,
+                        1,
+                        -1.745 - 0.009);
         public static final SwerveModulePreset kModuleBL =
                 new SwerveModulePreset(
+                        "SwerveModuleBL",
                         CAN.kDriveMotorPortBL,
                         CAN.kTurnMotorPortBL,
                         false,
@@ -174,7 +192,13 @@ public class Constants {
                         -0.106 + 0.014);
         public static final SwerveModulePreset kModuleBR =
                 new SwerveModulePreset(
-                        CAN.kDriveMotorPortBR, CAN.kTurnMotorPortBR, true, true, 3, 0.048 + 0.412);
+                        "SwerveModuleBR",
+                        CAN.kDriveMotorPortBR,
+                        CAN.kTurnMotorPortBR,
+                        true,
+                        true,
+                        3,
+                        0.048 + 0.412);
 
         /*
         // units: m/s
@@ -197,8 +221,8 @@ public class Constants {
                 new SwerveModuleState[] {
                     new SwerveModuleState(0, new Rotation2d(Math.PI / 4)),
                     new SwerveModuleState(0, new Rotation2d(-Math.PI / 4)),
-                    new SwerveModuleState(0, new Rotation2d(Math.PI / 4)),
-                    new SwerveModuleState(0, new Rotation2d(-Math.PI / 4))
+                    new SwerveModuleState(0, new Rotation2d(-Math.PI / 4)),
+                    new SwerveModuleState(0, new Rotation2d(Math.PI / 4))
                 };
     }
 
@@ -215,7 +239,7 @@ public class Constants {
         public static final int kDriveMotorPortBR = 13;
         public static final int kTurnMotorPortBR = 23;
 
-        public static final int kPigeonPort = 30;
+        public static final int kPigeonPort = 31;
     }
 
     public static enum ControllerType {

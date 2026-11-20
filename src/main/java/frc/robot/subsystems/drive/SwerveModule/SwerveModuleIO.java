@@ -5,7 +5,13 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 
 public interface SwerveModuleIO {
+    public default String getName() {
+        return null;
+    }
+
     public default void setVelocity(double velocity) {}
+
+    public default void setPosition(double position) {}
 
     public default void setRotation(Rotation2d rotation) {}
 
@@ -32,7 +38,7 @@ public interface SwerveModuleIO {
     }
 
     public default SwerveModuleState getState() {
-        return null;
+        return new SwerveModuleState(getVelocity(), getRotation());
     }
 
     public default SwerveModulePosition getPosition() {

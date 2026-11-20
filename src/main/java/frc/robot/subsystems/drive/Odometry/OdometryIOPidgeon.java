@@ -1,25 +1,22 @@
-package frc.robot.subsystems.drive;
+package frc.robot.subsystems.drive.Odometry;
 
 import com.ctre.phoenix6.hardware.Pigeon2;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.CAN;
 import frc.robot.Constants.DriveConstants;
-import org.littletonrobotics.junction.Logger;
+import frc.robot.subsystems.drive.Swerve;
 
-public class Odometry extends SubsystemBase {
+public class OdometryIOPidgeon implements OdometryIO {
     private final Swerve swerve;
-    private final SwerveDrivePoseEstimator poseEstimator;
     private final Pigeon2 pigeon;
+    private final SwerveDrivePoseEstimator poseEstimator;
 
-    public Odometry(Swerve swerve) {
-        System.out.println("[Init] Creating Odometry");
-
+    public OdometryIOPidgeon(Swerve swerve) {
         this.swerve = swerve;
-
         this.pigeon = new Pigeon2(CAN.kPigeonPort);
+
         this.poseEstimator =
                 new SwerveDrivePoseEstimator(
                         DriveConstants.kDriveKinematics,
@@ -28,10 +25,12 @@ public class Odometry extends SubsystemBase {
                         new Pose2d());
     }
 
-    @Override
-    public void periodic() {
-        Logger.recordOutput(getName() + "/Pose", getHeading());
+    public void update() {
         poseEstimator.update(getHeading(), swerve.getPositions());
+    }
+
+    public String getName() {
+        return "Odometry";
     }
 
     public void setHeading(Rotation2d heading) {

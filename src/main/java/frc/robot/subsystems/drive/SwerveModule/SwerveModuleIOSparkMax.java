@@ -13,13 +13,16 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.RobotController;
 import frc.robot.Constants.SwerveModuleConstants;
 import frc.robot.Constants.SwerveModulePreset;
+import frc.robot.util.MathHelper;
 
 public class SwerveModuleIOSparkMax implements SwerveModuleIO {
+    public final String name;
     private final SparkMax driveMotor, turnMotor;
     private final SparkMaxConfig driveConfig, turnConfig;
     private final AnalogInput absoluteEncoder;
@@ -28,6 +31,8 @@ public class SwerveModuleIOSparkMax implements SwerveModuleIO {
     private final double encoderOffset;
 
     public SwerveModuleIOSparkMax(SwerveModulePreset preset) {
+        name = preset.name;
+
         driveMotor = new SparkMax(preset.drivePort, MotorType.kBrushless);
         turnMotor = new SparkMax(preset.turnPort, MotorType.kBrushless);
 
@@ -81,13 +86,23 @@ public class SwerveModuleIOSparkMax implements SwerveModuleIO {
     }
 
     public void setVelocity(double velocity) {
-        if (Math.abs(driveEncoder.getVelocity() - velocity)
-                < SwerveModuleConstants.kAllowedDriveError) return;
         driveControl.setSetpoint(velocity, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
+    }
+
+    public void setPosition(double position) {
+        driveControl.setSetpoint(0, ControlType.kVelocity);
     }
 
     public void setRotation(Rotation2d rotation) {
         turnControl.setSetpoint(rotation.getRadians(), ControlType.kPosition);
+    }
+
+    public void setState(SwerveModuleState state) {
+        if (Math.abs(driveEncoder.getVelocity() - state.speedMetersPerSecond)
+                > SwerveModuleConstants.kAllowedDriveError) setVelocity(state.speedMetersPerSecond);
+        if (Math.abs(MathHelper.minDist180(state.angle, getRotation()).getRadians())
+                > SwerveModuleConstants.kAllowedTurnError) setRotation(state.angle);
+        else turnMotor.set(0);
     }
 
     public void resetEncoder() {
@@ -97,6 +112,10 @@ public class SwerveModuleIOSparkMax implements SwerveModuleIO {
     public void stop() {
         turnMotor.set(0);
         driveMotor.set(0);
+    }
+
+    public String getName() {
+        return name;
     }
 
     public double getVelocity() {

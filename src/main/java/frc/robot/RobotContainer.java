@@ -9,7 +9,8 @@ import frc.robot.Constants.SwerveModuleConstants;
 import frc.robot.commands.ManualTeleOp;
 import frc.robot.commands.Rumble;
 import frc.robot.subsystems.drive.Autos;
-import frc.robot.subsystems.drive.Odometry;
+import frc.robot.subsystems.drive.Odometry.Odometry;
+import frc.robot.subsystems.drive.Odometry.OdometryIOPidgeon;
 import frc.robot.subsystems.drive.Swerve;
 import frc.robot.subsystems.drive.SwerveModule.SwerveModuleIOSim;
 import frc.robot.subsystems.drive.SwerveModule.SwerveModuleIOSparkMax;
@@ -53,7 +54,7 @@ public class RobotContainer {
                             new SwerveModuleIOSparkMax(DriveConstants.kModuleBR));
         }
 
-        odometry = new Odometry(swerve);
+        odometry = new Odometry(new OdometryIOPidgeon(swerve));
         autos = new Autos();
 
         configureAutos();

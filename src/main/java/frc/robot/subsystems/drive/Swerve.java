@@ -48,6 +48,24 @@ public class Swerve extends SubsystemBase {
         setStates(moduleStates);
     }
 
+    public void updatePositions() {
+        moduleFL.updatePosition();
+        moduleFR.updatePosition();
+        moduleBL.updatePosition();
+        moduleBR.updatePosition();
+    }
+
+    public void holdPosition() {
+        moduleFL.holdPosition();
+        moduleFR.holdPosition();
+        moduleBL.holdPosition();
+        moduleBR.holdPosition();
+    }
+
+    public void lockWheels() {
+        setStates(DriveConstants.kLockStates);
+    }
+
     public void resetEncoders() {
         moduleFL.resetEncoder();
         moduleFR.resetEncoder();

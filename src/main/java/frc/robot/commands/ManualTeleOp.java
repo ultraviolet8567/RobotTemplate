@@ -8,7 +8,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.OIConstants;
-import frc.robot.subsystems.drive.Odometry;
+import frc.robot.subsystems.drive.Odometry.Odometry;
 import frc.robot.subsystems.drive.Swerve;
 import java.util.function.Supplier;
 
@@ -17,6 +17,7 @@ public class ManualTeleOp extends Command {
     private final Odometry odometry;
     private final CommandXboxController controller;
     private final Supplier<Double> xControl, yControl, turnControl, driveSpeed, turnSpeed;
+    private final Supplier<Boolean> xButton;
 
     public ManualTeleOp(
             Swerve swerve,
@@ -31,6 +32,7 @@ public class ManualTeleOp extends Command {
         this.xControl = () -> -this.controller.getLeftY();
         this.yControl = () -> -this.controller.getLeftX();
         this.turnControl = () -> -this.controller.getRightX();
+        this.xButton = () -> this.controller.x().getAsBoolean();
         this.driveSpeed = driveSpeed;
         this.turnSpeed = turnSpeed;
 
@@ -46,14 +48,23 @@ public class ManualTeleOp extends Command {
         double turn = turnSpeed.get();
         Rotation2d heading = odometry.getHeading();
 
+        if (Math.abs(xVel) < OIConstants.kDeadband) xVel = 0;
+        if (Math.abs(yVel) < OIConstants.kDeadband) yVel = 0;
+        if (Math.abs(turnVel) < OIConstants.kDeadband) turnVel = 0;
+
+        xVel = Math.pow(xVel, 3.0);
+        yVel = Math.pow(yVel, 3.0);
+
         drive =
                 MathUtil.clamp(
                         drive, -DriveConstants.kDriveMaxSpeed, DriveConstants.kDriveMaxSpeed);
         turn = MathUtil.clamp(drive, -DriveConstants.kTurnMaxSpeed, DriveConstants.kTurnMaxSpeed);
 
-        if (Math.abs(xVel) < OIConstants.kDeadband) xVel = 0;
-        if (Math.abs(yVel) < OIConstants.kDeadband) yVel = 0;
-        if (Math.abs(turnVel) < OIConstants.kDeadband) turnVel = 0;
+        if (xVel == 0 && yVel == 0 && turnVel == 0) {
+            swerve.holdPosition();
+            return;
+        }
+        swerve.updatePositions();
 
         ChassisSpeeds chassisSpeed;
         if (FieldConstants.fieldOriented) {
@@ -64,7 +75,11 @@ public class ManualTeleOp extends Command {
             chassisSpeed = new ChassisSpeeds(xVel * drive, yVel * drive, turnVel * turn);
         }
 
-        swerve.setStates(chassisSpeed);
+        if (xButton.get()) {
+            swerve.lockWheels();
+        } else {
+            swerve.setStates(chassisSpeed);
+        }
     }
 
     @Override
