@@ -89,57 +89,10 @@ public class Constants {
         }
     }
 
-    public static record SwerveModuleGains(
-            double turnP,
-            double turnI,
-            double turnD,
-            double driveP,
-            double driveI,
-            double driveD,
-            double driveV) {}
-
-    public static final class SwerveModuleConstants {
-        // units: m
-        public static final double kWheelDiameter = Units.inchesToMeters(3.75);
-        // units: m/s
-        public static final double kMaxSpeed = 12;
-
-        // units m/s
-        public static final double kAllowedDriveError = 0.01;
-        // units: rad
-        public static final double kAllowedTurnError = 0.1;
-
-        public static final double[] kMK5NDriveGearRatios = {
-            1, // Filler
-            225.0 / 32.0,
-            675.0 / 112.0,
-            675.0 / 128.0
-        };
-
-        public static final double[] kMK4NDriveGearRatios = {
-            1, // Filler
-            1 / 5.9
-        };
-
-        public static final double kMK5NTurnGearRatio = 287.0 / 11.0;
-        public static final double kMK4NTurnGearRatio = 4.0 / 75.0;
-
-        public static final double[] kDriveGearRatios = kMK4NDriveGearRatios;
-        public static final double kTurnGearRatio = kMK4NTurnGearRatio;
-
-        public static final MotorPreset kPresetNEO = new MotorPreset(DCMotor.getNEO(1), 0.005);
-        public static final MotorPreset kPresetKrakenX60 =
-                new MotorPreset(DCMotor.getKrakenX60(1), 0.005);
-        public static final MotorPreset kPresetKrakenX44 =
-                new MotorPreset(DCMotor.getKrakenX44(1), 0.005);
-
-        public static final SwerveModuleGains kSparkMaxGains =
-                new SwerveModuleGains(1, 0, 1, 0.05, 0, 1, 0.2);
-        public static final SwerveModuleGains kTalonFXGains =
-                new SwerveModuleGains(1, 0, 1, 0.05, 0, 0, 0.2);
-    }
-
     public static class DriveConstants {
+        public static final int kGear = 1;
+        public static final GearboxType kGearbox = GearboxType.MK4N;
+
         // units: m/s
         public static final double kDriveMaxSpeed = 5;
         public static final double kDriveSpeed = 5;
@@ -153,8 +106,6 @@ public class Constants {
         // units: m
         public static final double kTrackWidth = Units.inchesToMeters(21.75);
         public static final double kWheelBase = Units.inchesToMeters(21.75);
-
-        public static final int kGear = 1;
 
         public static final SwerveDriveKinematics kDriveKinematics =
                 new SwerveDriveKinematics(
@@ -226,6 +177,59 @@ public class Constants {
                 };
     }
 
+    public static record SwerveModuleGains(
+            double turnP,
+            double turnI,
+            double turnD,
+            double driveP,
+            double driveI,
+            double driveD,
+            double driveV,
+            double lockP,
+            double lockI,
+            double lockD) {}
+
+    public static final class SwerveModuleConstants {
+        // units: m
+        public static final double kWheelDiameter = Units.inchesToMeters(3.75);
+        // units: m/s
+        public static final double kMaxSpeed = 12;
+
+        // units m/s
+        public static final double kAllowedDriveError = 0.01;
+        // units: rad
+        public static final double kAllowedTurnError = 0.1;
+
+        public static final double[] kMK5NDriveGearRatios = {
+            1, // Filler
+            225.0 / 32.0,
+            675.0 / 112.0,
+            675.0 / 128.0
+        };
+
+        public static final double[] kMK4NDriveGearRatios = {
+            1, // Filler
+            1 / 5.9
+        };
+
+        public static final double kMK5NTurnGearRatio = 287.0 / 11.0;
+        public static final double kMK4NTurnGearRatio = 4.0 / 75.0;
+
+        public static final double[] kDriveGearRatios = kMK4NDriveGearRatios;
+        public static final double kTurnGearRatio = kMK4NTurnGearRatio;
+
+        public static final MotorPreset kPresetNEO = new MotorPreset(DCMotor.getNEO(1), 0.005);
+        public static final MotorPreset kPresetKrakenX60 =
+                new MotorPreset(DCMotor.getKrakenX60(1), 0.005);
+        public static final MotorPreset kPresetKrakenX44 =
+                new MotorPreset(DCMotor.getKrakenX44(1), 0.005);
+
+        public static final SwerveModuleGains kSparkMaxGains =
+                new SwerveModuleGains(1, 0, 1, 0.05, 0, 1, 0.2, 0.1, 0, 0);
+        public static final SwerveModuleGains kTalonFXGains =
+                new SwerveModuleGains(1, 0, 1, 0.05, 0, 0, 0.2, 0.1, 0, 0);
+    }
+
     public static class CAN {
         public static final int kDriveMotorPortFL = 10;
         public static final int kTurnMotorPortFL = 20;
@@ -246,5 +250,10 @@ public class Constants {
         XBOX,
         LOGITECH,
         JOYSTICK
+    }
+
+    public static enum GearboxType {
+        MK4N,
+        MK5N
     }
 }

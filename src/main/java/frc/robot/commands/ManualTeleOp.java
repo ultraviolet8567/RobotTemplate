@@ -16,7 +16,7 @@ public class ManualTeleOp extends Command {
     private final Swerve swerve;
     private final Odometry odometry;
     private final CommandXboxController controller;
-    private final Supplier<Double> xControl, yControl, turnControl, driveSpeed, turnSpeed;
+    private final Supplier<Double> leftX, leftY, rightX, rightY, driveSpeed, turnSpeed;
     private final Supplier<Boolean> xButton;
 
     public ManualTeleOp(
@@ -29,9 +29,10 @@ public class ManualTeleOp extends Command {
         this.odometry = odometry;
         this.controller = controller;
 
-        this.xControl = () -> -this.controller.getLeftY();
-        this.yControl = () -> -this.controller.getLeftX();
-        this.turnControl = () -> -this.controller.getRightX();
+        this.leftX = () -> -this.controller.getLeftY();
+        this.leftY = () -> -this.controller.getLeftX();
+        this.rightX = () -> -this.controller.getRightY();
+        this.rightY = () -> -this.controller.getRightX();
         this.xButton = () -> this.controller.x().getAsBoolean();
         this.driveSpeed = driveSpeed;
         this.turnSpeed = turnSpeed;
@@ -41,12 +42,15 @@ public class ManualTeleOp extends Command {
 
     @Override
     public void execute() {
-        double xVel = xControl.get();
-        double yVel = yControl.get();
-        double turnVel = turnControl.get();
+        double xVel = leftX.get();
+        double yVel = leftY.get();
+        double xTurn = rightX.get();
+        double yTurn = rightY.get();
         double drive = driveSpeed.get();
         double turn = turnSpeed.get();
         Rotation2d heading = odometry.getHeading();
+
+        double turnVel = xTurn;
 
         if (Math.abs(xVel) < OIConstants.kDeadband) xVel = 0;
         if (Math.abs(yVel) < OIConstants.kDeadband) yVel = 0;
@@ -62,22 +66,21 @@ public class ManualTeleOp extends Command {
 
         if (xVel == 0 && yVel == 0 && turnVel == 0) {
             swerve.holdPosition();
-            return;
-        }
-        swerve.updatePositions();
-
-        ChassisSpeeds chassisSpeed;
-        if (FieldConstants.fieldOriented) {
-            chassisSpeed =
-                    ChassisSpeeds.fromFieldRelativeSpeeds(
-                            xVel * drive, yVel * drive, turnVel * turn, heading);
         } else {
-            chassisSpeed = new ChassisSpeeds(xVel * drive, yVel * drive, turnVel * turn);
+            swerve.updatePositions();
         }
 
         if (xButton.get()) {
             swerve.lockWheels();
         } else {
+            ChassisSpeeds chassisSpeed;
+            if (FieldConstants.fieldOriented) {
+                chassisSpeed =
+                        ChassisSpeeds.fromFieldRelativeSpeeds(
+                                xVel * drive, yVel * drive, turnVel * turn, heading);
+            } else {
+                chassisSpeed = new ChassisSpeeds(xVel * drive, yVel * drive, turnVel * turn);
+            }
             swerve.setStates(chassisSpeed);
         }
     }
