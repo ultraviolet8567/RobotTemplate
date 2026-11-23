@@ -2,6 +2,7 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
@@ -80,6 +81,7 @@ public class RobotContainer {
         driver.rightBumper()
                 .whileTrue(
                         new Rumble(driver, RumbleType.kRightRumble, OIConstants.kRumbleStrength));
+        driver.start().onTrue(new InstantCommand(() -> odometry.resetHeading()));
     }
 
     public static CommandXboxController getDriver() {

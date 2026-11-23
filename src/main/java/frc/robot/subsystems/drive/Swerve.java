@@ -64,6 +64,7 @@ public class Swerve extends SubsystemBase {
 
     public void lockWheels() {
         setStates(DriveConstants.kLockStates);
+        holdPosition();
     }
 
     public void resetEncoders() {

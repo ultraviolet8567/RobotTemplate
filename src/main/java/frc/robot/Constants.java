@@ -197,6 +197,9 @@ public class Constants {
 
         // units m/s
         public static final double kAllowedDriveError = 0.01;
+        // units m
+        public static final double kAllowedPositionError = 0.005;
+        public static final double kPositionCorrectionRate = 0.00001;
         // units: rad
         public static final double kAllowedTurnError = 0.1;
 
@@ -225,9 +228,9 @@ public class Constants {
                 new MotorPreset(DCMotor.getKrakenX44(1), 0.005);
 
         public static final SwerveModuleGains kSparkMaxGains =
-                new SwerveModuleGains(1, 0, 1, 0.05, 0, 1, 0.2, 0.1, 0, 0);
+                new SwerveModuleGains(1, 0, 1, 0.05, 0, 1, 0.2, 4, 0, 12);
         public static final SwerveModuleGains kTalonFXGains =
-                new SwerveModuleGains(1, 0, 1, 0.05, 0, 0, 0.2, 0.1, 0, 0);
+                new SwerveModuleGains(1, 0, 1, 0.05, 0, 0, 0.2, 0.1, 0, 0.2);
     }
 
     public static class CAN {

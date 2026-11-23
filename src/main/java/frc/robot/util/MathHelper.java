@@ -12,4 +12,15 @@ public class MathHelper {
         if (diff > Math.PI / 2) diff = Math.PI - diff;
         return new Rotation2d(diff);
     }
+
+    public static double moveToward(double from, double to, double speed) {
+        if (Math.abs(to - from) < speed) {
+            return to;
+        } else if (from < to) {
+            return from + speed;
+        } else if (from > to) {
+            return from - speed;
+        }
+        return from;
+    }
 }

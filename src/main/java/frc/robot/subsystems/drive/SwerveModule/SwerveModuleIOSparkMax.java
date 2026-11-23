@@ -43,7 +43,6 @@ public class SwerveModuleIOSparkMax implements SwerveModuleIO {
         driveConfig.smartCurrentLimit(40);
         driveConfig.inverted(preset.driveInverted);
         driveConfig.idleMode(IdleMode.kBrake);
-        driveConfig.closedLoopRampRate(0.05);
         driveConfig.closedLoop.pid(
                 SwerveModuleConstants.kSparkMaxGains.driveP(),
                 SwerveModuleConstants.kSparkMaxGains.driveI(),
@@ -56,6 +55,7 @@ public class SwerveModuleIOSparkMax implements SwerveModuleIO {
                 SwerveModuleConstants.kSparkMaxGains.lockI(),
                 SwerveModuleConstants.kSparkMaxGains.lockD(),
                 ClosedLoopSlot.kSlot1);
+        // driveConfig.closedLoopRampRate(0.1);
 
         driveEncoder = driveMotor.getEncoder();
         driveConfig.encoder.positionConversionFactor(preset.driveRot2Meters());
@@ -69,11 +69,11 @@ public class SwerveModuleIOSparkMax implements SwerveModuleIO {
         turnConfig.closedLoop.positionWrappingInputRange(0, Math.PI * 2);
         turnConfig.closedLoop.allowedClosedLoopError(
                 SwerveModuleConstants.kAllowedTurnError, ClosedLoopSlot.kSlot0);
-        turnConfig.closedLoopRampRate(0.05);
         turnConfig.closedLoop.pid(
                 SwerveModuleConstants.kSparkMaxGains.turnP(),
                 SwerveModuleConstants.kSparkMaxGains.turnI(),
                 SwerveModuleConstants.kSparkMaxGains.turnD());
+        turnConfig.closedLoopRampRate(0.05);
 
         turnEncoder = turnMotor.getEncoder();
         turnConfig.encoder.positionConversionFactor(preset.turnRot2Rads());
@@ -97,6 +97,12 @@ public class SwerveModuleIOSparkMax implements SwerveModuleIO {
     }
 
     public void setPosition(double position) {
+        if (Math.abs(position - getPosition().distanceMeters)
+                < SwerveModuleConstants.kAllowedPositionError) {
+            driveMotor.set(0);
+            return;
+        }
+
         driveControl.setSetpoint(position, ControlType.kPosition, ClosedLoopSlot.kSlot1);
     }
 

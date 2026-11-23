@@ -3,6 +3,7 @@ package frc.robot.commands;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.DriveConstants;
@@ -17,7 +18,8 @@ public class ManualTeleOp extends Command {
     private final Odometry odometry;
     private final CommandXboxController controller;
     private final Supplier<Double> leftX, leftY, rightX, rightY, driveSpeed, turnSpeed;
-    private final Supplier<Boolean> xButton;
+    private final Supplier<Boolean> buttonX;
+    private final Timer inertialBuffer;
 
     public ManualTeleOp(
             Swerve swerve,
@@ -33,9 +35,12 @@ public class ManualTeleOp extends Command {
         this.leftY = () -> -this.controller.getLeftX();
         this.rightX = () -> -this.controller.getRightY();
         this.rightY = () -> -this.controller.getRightX();
-        this.xButton = () -> this.controller.x().getAsBoolean();
+        this.buttonX = () -> this.controller.x().getAsBoolean();
         this.driveSpeed = driveSpeed;
         this.turnSpeed = turnSpeed;
+
+        this.inertialBuffer = new Timer();
+        this.inertialBuffer.start();
 
         addRequirements(swerve);
     }
@@ -50,7 +55,7 @@ public class ManualTeleOp extends Command {
         double turn = turnSpeed.get();
         Rotation2d heading = odometry.getHeading();
 
-        double turnVel = xTurn;
+        double turnVel = yTurn;
 
         if (Math.abs(xVel) < OIConstants.kDeadband) xVel = 0;
         if (Math.abs(yVel) < OIConstants.kDeadband) yVel = 0;
@@ -64,25 +69,30 @@ public class ManualTeleOp extends Command {
                         drive, -DriveConstants.kDriveMaxSpeed, DriveConstants.kDriveMaxSpeed);
         turn = MathUtil.clamp(drive, -DriveConstants.kTurnMaxSpeed, DriveConstants.kTurnMaxSpeed);
 
-        if (xVel == 0 && yVel == 0 && turnVel == 0) {
-            swerve.holdPosition();
-        } else {
-            swerve.updatePositions();
+        if (buttonX.get()) {
+            swerve.lockWheels();
+            return;
         }
 
-        if (xButton.get()) {
-            swerve.lockWheels();
-        } else {
-            ChassisSpeeds chassisSpeed;
-            if (FieldConstants.fieldOriented) {
-                chassisSpeed =
-                        ChassisSpeeds.fromFieldRelativeSpeeds(
-                                xVel * drive, yVel * drive, turnVel * turn, heading);
-            } else {
-                chassisSpeed = new ChassisSpeeds(xVel * drive, yVel * drive, turnVel * turn);
+        if (xVel == 0 && yVel == 0 && turnVel == 0) {
+            if (inertialBuffer.hasElapsed(0.5)) {
+                swerve.holdPosition();
+                return;
             }
-            swerve.setStates(chassisSpeed);
+        } else {
+            inertialBuffer.restart();
         }
+        swerve.updatePositions();
+
+        ChassisSpeeds chassisSpeed;
+        if (FieldConstants.fieldOriented) {
+            chassisSpeed =
+                    ChassisSpeeds.fromFieldRelativeSpeeds(
+                            xVel * drive, yVel * drive, turnVel * turn, heading);
+        } else {
+            chassisSpeed = new ChassisSpeeds(xVel * drive, yVel * drive, turnVel * turn);
+        }
+        swerve.setStates(chassisSpeed);
     }
 
     @Override
