@@ -52,9 +52,9 @@ public class SwerveModuleIOTalonFX implements SwerveModuleIO {
                                         : InvertedValue.Clockwise_Positive)
                         .withNeutralMode(NeutralModeValue.Brake));
 
-        driveControlConfig.kP = SwerveModuleConstants.kTalonFXGains.driveP();
-        driveControlConfig.kI = SwerveModuleConstants.kTalonFXGains.driveI();
-        driveControlConfig.kD = SwerveModuleConstants.kTalonFXGains.driveD();
+        driveControlConfig.kP = SwerveModuleConstants.kTalonFXGains.drive().P();
+        driveControlConfig.kI = SwerveModuleConstants.kTalonFXGains.drive().I();
+        driveControlConfig.kD = SwerveModuleConstants.kTalonFXGains.drive().D();
         driveControlConfig.kV = SwerveModuleConstants.kTalonFXGains.driveV();
 
         turnConfig.withCurrentLimits(
@@ -71,9 +71,9 @@ public class SwerveModuleIOTalonFX implements SwerveModuleIO {
                                         : InvertedValue.Clockwise_Positive)
                         .withNeutralMode(NeutralModeValue.Brake));
 
-        turnControlConfig.kP = SwerveModuleConstants.kTalonFXGains.turnP();
-        turnControlConfig.kI = SwerveModuleConstants.kTalonFXGains.turnI();
-        turnControlConfig.kD = SwerveModuleConstants.kTalonFXGains.turnD();
+        turnControlConfig.kP = SwerveModuleConstants.kTalonFXGains.turn().P();
+        turnControlConfig.kI = SwerveModuleConstants.kTalonFXGains.turn().I();
+        turnControlConfig.kD = SwerveModuleConstants.kTalonFXGains.turn().D();
 
         absoluteEncoder = new AnalogInput(preset.encoderPort);
         encoderOffset = preset.encoderOffset;

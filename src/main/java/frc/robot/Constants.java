@@ -103,6 +103,9 @@ public class Constants {
         public static final double kTurnSpeed = 3 * Math.PI;
         public static final double kTurnSlowSpeed = 1 * Math.PI;
 
+        // units: rad
+        public static final double kAllowedTurnError = 0.1;
+
         // units: m
         public static final double kTrackWidth = Units.inchesToMeters(21.75);
         public static final double kWheelBase = Units.inchesToMeters(21.75);
@@ -152,15 +155,11 @@ public class Constants {
                         0.048 + 0.412);
 
         /*
-        // units: m/s
-        public static final double kMaxSpeed = 5;
-        // units: rad/s
-        public static final double kMaxAngularSpeed = 3 * Math.PI;
-
-        // units: m/s/s
-        public static final double kMaxAcceleration = 5;
-        // units: rad/s/s
-        public static final double kMaxAngularAcceleration = 3 * Math.PI;
+         * // units: m/s public static final double kMaxSpeed = 5; // units: rad/s
+         * public static final double kMaxAngularSpeed = 3 * Math.PI;
+         *
+         * // units: m/s/s public static final double kMaxAcceleration = 5; // units:
+         * rad/s/s public static final double kMaxAngularAcceleration = 3 * Math.PI;
          */
 
         // units: kg
@@ -177,17 +176,9 @@ public class Constants {
                 };
     }
 
-    public static record SwerveModuleGains(
-            double turnP,
-            double turnI,
-            double turnD,
-            double driveP,
-            double driveI,
-            double driveD,
-            double driveV,
-            double lockP,
-            double lockI,
-            double lockD) {}
+    public static record Gains(double P, double I, double D) {}
+
+    public static record SwerveModuleGains(Gains turn, Gains drive, double driveV, Gains lock) {}
 
     public static final class SwerveModuleConstants {
         // units: m
@@ -199,6 +190,7 @@ public class Constants {
         public static final double kAllowedDriveError = 0.01;
         // units m
         public static final double kAllowedPositionError = 0.005;
+        public static final double kPositionResetOffset = 0.05;
         public static final double kPositionCorrectionRate = 0.00001;
         // units: rad
         public static final double kAllowedTurnError = 0.1;
@@ -228,9 +220,12 @@ public class Constants {
                 new MotorPreset(DCMotor.getKrakenX44(1), 0.005);
 
         public static final SwerveModuleGains kSparkMaxGains =
-                new SwerveModuleGains(1, 0, 1, 0.05, 0, 1, 0.2, 4, 0, 12);
+                new SwerveModuleGains(
+                        new Gains(1, 0, 1), new Gains(0.05, 0, 1), 0.2, new Gains(4, 0, 12));
+
         public static final SwerveModuleGains kTalonFXGains =
-                new SwerveModuleGains(1, 0, 1, 0.05, 0, 0, 0.2, 0.1, 0, 0.2);
+                new SwerveModuleGains(
+                        new Gains(1, 0, 1), new Gains(0.05, 0, 1), 0.2, new Gains(4, 0, 12));
     }
 
     public static class CAN {

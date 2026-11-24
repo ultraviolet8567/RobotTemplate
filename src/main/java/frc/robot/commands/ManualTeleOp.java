@@ -1,6 +1,7 @@
 package frc.robot.commands;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.Timer;
@@ -11,15 +12,18 @@ import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.subsystems.drive.Odometry.Odometry;
 import frc.robot.subsystems.drive.Swerve;
+import frc.robot.util.MathHelper;
 import java.util.function.Supplier;
+import org.littletonrobotics.junction.Logger;
 
 public class ManualTeleOp extends Command {
     private final Swerve swerve;
     private final Odometry odometry;
     private final CommandXboxController controller;
     private final Supplier<Double> leftX, leftY, rightX, rightY, driveSpeed, turnSpeed;
-    private final Supplier<Boolean> buttonX;
+    private final Supplier<Boolean> buttonX, leftBumper;
     private final Timer inertialBuffer;
+    private final PIDController pidController;
 
     public ManualTeleOp(
             Swerve swerve,
@@ -36,11 +40,14 @@ public class ManualTeleOp extends Command {
         this.rightX = () -> -this.controller.getRightY();
         this.rightY = () -> -this.controller.getRightX();
         this.buttonX = () -> this.controller.x().getAsBoolean();
+        this.leftBumper = () -> this.controller.leftBumper().getAsBoolean();
         this.driveSpeed = driveSpeed;
         this.turnSpeed = turnSpeed;
 
         this.inertialBuffer = new Timer();
         this.inertialBuffer.start();
+
+        this.pidController = new PIDController(0.6, 0, 0);
 
         addRequirements(swerve);
     }
@@ -55,11 +62,26 @@ public class ManualTeleOp extends Command {
         double turn = turnSpeed.get();
         Rotation2d heading = odometry.getHeading();
 
-        double turnVel = yTurn;
-
         if (Math.abs(xVel) < OIConstants.kDeadband) xVel = 0;
         if (Math.abs(yVel) < OIConstants.kDeadband) yVel = 0;
-        if (Math.abs(turnVel) < OIConstants.kDeadband) turnVel = 0;
+        if (Math.abs(xTurn) < OIConstants.kDeadband) xTurn = 0;
+        if (Math.abs(yTurn) < OIConstants.kDeadband) yTurn = 0;
+
+        double turnVel = yTurn;
+        double angle = Math.atan2(yTurn, xTurn);
+        Rotation2d error = MathHelper.minDist360(odometry.getHeading(), new Rotation2d(angle));
+
+        if (leftBumper.get()) {
+            turnVel = 0;
+            if (Math.abs(error.getRadians()) > DriveConstants.kAllowedTurnError) {
+                double strength = MathHelper.length(xTurn, yTurn);
+                // turnVel = pidController.calculate(error.getRadians(), 0) * strength;
+
+                Logger.recordOutput("Control/Angle", angle);
+                Logger.recordOutput("Control/Diff", error);
+                Logger.recordOutput("Control/Strength", strength);
+            }
+        }
 
         xVel = Math.pow(xVel, 3.0);
         yVel = Math.pow(yVel, 3.0);

@@ -44,16 +44,16 @@ public class SwerveModuleIOSparkMax implements SwerveModuleIO {
         driveConfig.inverted(preset.driveInverted);
         driveConfig.idleMode(IdleMode.kBrake);
         driveConfig.closedLoop.pid(
-                SwerveModuleConstants.kSparkMaxGains.driveP(),
-                SwerveModuleConstants.kSparkMaxGains.driveI(),
-                SwerveModuleConstants.kSparkMaxGains.driveD(),
+                SwerveModuleConstants.kSparkMaxGains.drive().P(),
+                SwerveModuleConstants.kSparkMaxGains.drive().I(),
+                SwerveModuleConstants.kSparkMaxGains.drive().D(),
                 ClosedLoopSlot.kSlot0);
         driveConfig.closedLoop.feedForward.kV(
                 SwerveModuleConstants.kSparkMaxGains.driveV(), ClosedLoopSlot.kSlot0);
         driveConfig.closedLoop.pid(
-                SwerveModuleConstants.kSparkMaxGains.lockP(),
-                SwerveModuleConstants.kSparkMaxGains.lockI(),
-                SwerveModuleConstants.kSparkMaxGains.lockD(),
+                SwerveModuleConstants.kSparkMaxGains.lock().P(),
+                SwerveModuleConstants.kSparkMaxGains.lock().I(),
+                SwerveModuleConstants.kSparkMaxGains.lock().D(),
                 ClosedLoopSlot.kSlot1);
         // driveConfig.closedLoopRampRate(0.1);
 
@@ -70,9 +70,9 @@ public class SwerveModuleIOSparkMax implements SwerveModuleIO {
         turnConfig.closedLoop.allowedClosedLoopError(
                 SwerveModuleConstants.kAllowedTurnError, ClosedLoopSlot.kSlot0);
         turnConfig.closedLoop.pid(
-                SwerveModuleConstants.kSparkMaxGains.turnP(),
-                SwerveModuleConstants.kSparkMaxGains.turnI(),
-                SwerveModuleConstants.kSparkMaxGains.turnD());
+                SwerveModuleConstants.kSparkMaxGains.turn().P(),
+                SwerveModuleConstants.kSparkMaxGains.turn().I(),
+                SwerveModuleConstants.kSparkMaxGains.turn().D());
         turnConfig.closedLoopRampRate(0.05);
 
         turnEncoder = turnMotor.getEncoder();

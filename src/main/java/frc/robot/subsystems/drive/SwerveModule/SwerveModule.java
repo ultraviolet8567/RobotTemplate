@@ -45,11 +45,16 @@ public class SwerveModule extends SubsystemBase {
     }
 
     public void holdPosition() {
-        targetPosition =
-                MathHelper.moveToward(
-                        targetPosition,
-                        io.getPosition().distanceMeters,
-                        SwerveModuleConstants.kPositionCorrectionRate);
+        if (Math.abs(targetPosition - io.getPosition().distanceMeters)
+                > SwerveModuleConstants.kPositionResetOffset) {
+            updatePosition();
+        } else {
+            targetPosition =
+                    MathHelper.moveToward(
+                            targetPosition,
+                            io.getPosition().distanceMeters,
+                            SwerveModuleConstants.kPositionCorrectionRate);
+        }
         io.setPosition(targetPosition);
     }
 
