@@ -48,7 +48,8 @@ public class SwerveModule extends SubsystemBase {
         if (Math.abs(targetPosition - io.getPosition().distanceMeters)
                 > SwerveModuleConstants.kPositionResetOffset) {
             updatePosition();
-        } else {
+        } else if (Math.abs(targetPosition - getPosition().distanceMeters)
+                > SwerveModuleConstants.kAllowedPositionError) {
             targetPosition =
                     MathHelper.moveToward(
                             targetPosition,

@@ -3,6 +3,7 @@ package frc.robot.commands;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -47,7 +48,7 @@ public class ManualTeleOp extends Command {
         this.inertialBuffer = new Timer();
         this.inertialBuffer.start();
 
-        this.pidController = new PIDController(0.6, 0, 0);
+        this.pidController = new PIDController(0.8, 0, 0.05);
 
         addRequirements(swerve);
     }
@@ -75,10 +76,8 @@ public class ManualTeleOp extends Command {
             turnVel = 0;
             if (Math.abs(error.getRadians()) > DriveConstants.kAllowedTurnError) {
                 double strength = MathHelper.length(xTurn, yTurn);
-                // turnVel = pidController.calculate(error.getRadians(), 0) * strength;
+                turnVel = pidController.calculate(error.getRadians(), 0) * strength;
 
-                Logger.recordOutput("Control/Angle", angle);
-                Logger.recordOutput("Control/Diff", error);
                 Logger.recordOutput("Control/Strength", strength);
             }
         }
@@ -97,7 +96,8 @@ public class ManualTeleOp extends Command {
         }
 
         if (xVel == 0 && yVel == 0 && turnVel == 0) {
-            if (inertialBuffer.hasElapsed(0.5)) {
+            if (odometry.getAcceleration().getDistance(new Translation2d(0, 0))
+                    < DriveConstants.kMaximumLockAcceleration) {
                 swerve.holdPosition();
                 return;
             }

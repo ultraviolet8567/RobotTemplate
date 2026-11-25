@@ -2,6 +2,7 @@ package frc.robot.subsystems.drive.Odometry;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 
 public interface OdometryIO {
     public default String getName() {
@@ -23,6 +24,10 @@ public interface OdometryIO {
     }
 
     public default Pose2d getPose() {
+        return null;
+    }
+
+    public default Translation2d getAcceleration() {
         return null;
     }
 }

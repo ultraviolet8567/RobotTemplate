@@ -106,6 +106,9 @@ public class Constants {
         // units: rad
         public static final double kAllowedTurnError = 0.1;
 
+        // units m/s/s
+        public static final double kMaximumLockAcceleration = 0.01;
+
         // units: m
         public static final double kTrackWidth = Units.inchesToMeters(21.75);
         public static final double kWheelBase = Units.inchesToMeters(21.75);
@@ -191,7 +194,7 @@ public class Constants {
         // units m
         public static final double kAllowedPositionError = 0.005;
         public static final double kPositionResetOffset = 0.05;
-        public static final double kPositionCorrectionRate = 0.00001;
+        public static final double kPositionCorrectionRate = 0.0000;
         // units: rad
         public static final double kAllowedTurnError = 0.1;
 

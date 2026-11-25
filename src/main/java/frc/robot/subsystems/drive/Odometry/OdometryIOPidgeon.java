@@ -4,6 +4,7 @@ import com.ctre.phoenix6.hardware.Pigeon2;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import frc.robot.Constants.CAN;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.subsystems.drive.Swerve;
@@ -55,5 +56,11 @@ public class OdometryIOPidgeon implements OdometryIO {
 
     public Pose2d getPose() {
         return poseEstimator.getEstimatedPosition();
+    }
+
+    public Translation2d getAcceleration() {
+        return new Translation2d(
+                pigeon.getAccelerationX().getValueAsDouble(),
+                pigeon.getAccelerationY().getValueAsDouble());
     }
 }

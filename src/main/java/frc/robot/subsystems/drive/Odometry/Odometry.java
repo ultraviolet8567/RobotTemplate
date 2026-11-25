@@ -2,6 +2,7 @@ package frc.robot.subsystems.drive.Odometry;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.Logger;
 
@@ -41,5 +42,9 @@ public class Odometry extends SubsystemBase {
 
     public Pose2d getPose() {
         return io.getPose();
+    }
+
+    public Translation2d getAcceleration() {
+        return io.getAcceleration();
     }
 }
